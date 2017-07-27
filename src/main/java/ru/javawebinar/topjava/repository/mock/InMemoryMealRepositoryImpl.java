@@ -14,51 +14,54 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class InMemoryMealRepositoryImpl implements MealRepository {
-    private Map<Integer, Meal> repository = new ConcurrentHashMap<>();
+    private Map<Integer, Map<Integer, Meal>> repository = new ConcurrentHashMap<>();
     private AtomicInteger counter = new AtomicInteger(0);
 
     {
-        MealsUtil.MEALS.forEach(this::save);
+        MealsUtil.MEALS.forEach(m -> this.save(m,1));
     }
 
     @Override
-    public Meal save(Meal meal) {
-
+    public Meal save(Meal meal, int UserId) {
         if (meal.isNew()) {
             meal.setId(counter.incrementAndGet());
         }
-        repository.put(meal.getId(), meal);
+        Map<Integer, Meal> usersMeals = repository.get(AuthorizedUser.id());
+        if (usersMeals == null){
+            usersMeals = new ConcurrentHashMap<>();
+            repository.put(UserId, usersMeals);
+        }
+        usersMeals.put(meal.getId(), meal);
+
         return meal;
     }
 
     @Override
-    public void delete(int id) {
-        if (repository.get(id).getUserId() == AuthorizedUser.id())
-            repository.remove(id);
+    public void delete(int id, int UserId) {
+        Map<Integer, Meal> usersMeals = repository.get(UserId);
+        if (usersMeals != null)
+            repository.get(UserId).remove(id);
     }
 
     @Override
-    public Meal get(int id) {
-        if (repository.get(id).getUserId() == AuthorizedUser.id())
-            return repository.get(id);
+    public Meal get(int id, int UserId) {
+        Map<Integer, Meal> usersMeals = repository.get(UserId);
+        if (usersMeals != null)
+            return usersMeals.get(id);
         return null;
     }
 
     @Override
-    public Collection<Meal> getAll() {
-        Collection<Meal> c = repository
-                                .values()
-                                .stream()
-                                .filter(m -> m.getUserId() == AuthorizedUser.id())
-                                .sorted(new Comparator<Meal>() {
-                                    @Override
-                                    public int compare(Meal o1, Meal o2) {
-                                        return o2.getDateTime().compareTo(o1.getDateTime());
-                                    }
-                                })
-                                .collect(Collectors.toCollection(ArrayList::new));
-        System.out.println(c);
-        return c;
+    public Collection<Meal> getAll(int UserId) {
+        Map<Integer, Meal> usersMeals = repository.get(UserId);
+        if (usersMeals != null) {
+            return usersMeals
+                    .values()
+                    .stream()
+                    .sorted((o1, o2) -> o2.getDateTime().compareTo(o1.getDateTime()))
+                    .collect(Collectors.toCollection(ArrayList::new));
+        }
+        return null;
     }
 }
 

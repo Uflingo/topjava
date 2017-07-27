@@ -7,19 +7,11 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public class Meal extends BaseEntity {
-    private Integer id;
-
     private final LocalDateTime dateTime;
 
     private final String description;
 
     private final int calories;
-
-    public int getUserId() {
-        return userId;
-    }
-
-    private final int userId = AuthorizedUser.id();
 
     public Meal(LocalDateTime dateTime, String description, int calories) {
         this(null, dateTime, description, calories);
