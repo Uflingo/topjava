@@ -22,14 +22,14 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
     }
 
     @Override
-    public Meal save(Meal meal, int UserId) {
+    public Meal save(Meal meal, int userId) {
         if (meal.isNew()) {
             meal.setId(counter.incrementAndGet());
         }
         Map<Integer, Meal> usersMeals = repository.get(AuthorizedUser.id());
         if (usersMeals == null){
             usersMeals = new ConcurrentHashMap<>();
-            repository.put(UserId, usersMeals);
+            repository.put(userId, usersMeals);
         }
         usersMeals.put(meal.getId(), meal);
 
@@ -37,23 +37,26 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
     }
 
     @Override
-    public void delete(int id, int UserId) {
-        Map<Integer, Meal> usersMeals = repository.get(UserId);
-        if (usersMeals != null)
-            repository.get(UserId).remove(id);
+    public boolean delete(int id, int userId) {
+        Map<Integer, Meal> usersMeals = repository.get(userId);
+        if (usersMeals != null) {
+            repository.get(userId).remove(id);
+            return true;
+        }
+        return false;
     }
 
     @Override
-    public Meal get(int id, int UserId) {
-        Map<Integer, Meal> usersMeals = repository.get(UserId);
+    public Meal get(int id, int userId) {
+        Map<Integer, Meal> usersMeals = repository.get(userId);
         if (usersMeals != null)
             return usersMeals.get(id);
         return null;
     }
 
     @Override
-    public Collection<Meal> getAll(int UserId) {
-        Map<Integer, Meal> usersMeals = repository.get(UserId);
+    public Collection<Meal> getAll(int userId) {
+        Map<Integer, Meal> usersMeals = repository.get(userId);
         if (usersMeals != null) {
             return usersMeals
                     .values()
