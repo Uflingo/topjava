@@ -1,6 +1,8 @@
 package ru.javawebinar.topjava.web.meal;
 
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.to.MealWithExceed;
@@ -14,8 +16,10 @@ import java.util.Collection;
 import static org.slf4j.LoggerFactory.getLogger;
 import static ru.javawebinar.topjava.util.MealsUtil.getWithExceeded;
 
+@Controller
 public class MealRestController {
     private static final Logger log = getLogger(MealRestController.class);
+    @Autowired
     private MealService service;
 
     public Collection<MealWithExceed> getAll(int userId, int caloriesPerDay){
