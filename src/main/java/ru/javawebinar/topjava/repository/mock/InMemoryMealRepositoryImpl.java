@@ -66,7 +66,7 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
                     .sorted((o1, o2) -> o2.getDateTime().compareTo(o1.getDateTime()))
                     .collect(Collectors.toCollection(ArrayList::new));
         }
-        return null;
+        return new ArrayList<>();
     }
 }
 

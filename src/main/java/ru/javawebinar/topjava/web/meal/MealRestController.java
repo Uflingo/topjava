@@ -3,6 +3,7 @@ package ru.javawebinar.topjava.web.meal;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import ru.javawebinar.topjava.AuthorizedUser;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.to.MealWithExceed;
@@ -22,34 +23,34 @@ public class MealRestController {
     @Autowired
     private MealService service;
 
-    public Collection<MealWithExceed> getAll(int userId, int caloriesPerDay){
+    public Collection<MealWithExceed> getAll(){
         log.info("get all");
-        return getWithExceeded(service.getAll(userId), caloriesPerDay);
+        return getWithExceeded(service.getAll(AuthorizedUser.id()), AuthorizedUser.getCaloriesPerDay());
     }
 
-    public Meal create(Meal meal, int userId){
-        return service.save(meal,userId);
+    public Meal create(Meal meal){
+        return service.save(meal,AuthorizedUser.id());
     }
 
-    public void delete(int mealId, int userId){
-        service.delete(mealId, userId);
+    public void delete(int mealId){
+        service.delete(mealId, AuthorizedUser.id());
     }
 
-    public void update(int mealId, int userId){
-        service.save(service.get(mealId, userId), userId);
+    public void update(int mealId){
+        service.save(service.get(mealId, AuthorizedUser.id()), AuthorizedUser.id());
     }
 
-    public Collection<MealWithExceed> getByDate(int userId, LocalDate startDate, LocalDate stopDate, int caloriesPerDay){
-        return getWithExceeded(service.getFilteredByDate(userId, startDate, stopDate), caloriesPerDay );
+    public Collection<MealWithExceed> getByDate(LocalDate startDate, LocalDate stopDate){
+        return getWithExceeded(service.getFilteredByDate(AuthorizedUser.id(), startDate, stopDate), AuthorizedUser.getCaloriesPerDay() );
     }
 
-    public Collection<MealWithExceed> getByTime(int userId, LocalTime startTime, LocalTime stopTime, int caloriesPerDay){
-        return MealsUtil.getFilteredWithExceeded(service.getAll(userId),startTime, stopTime,caloriesPerDay );
+    public Collection<MealWithExceed> getByTime(LocalTime startTime, LocalTime stopTime){
+        return MealsUtil.getFilteredWithExceeded(service.getAll(AuthorizedUser.id()),startTime, stopTime,AuthorizedUser.getCaloriesPerDay() );
     }
 
-    public Collection<MealWithExceed> getByDateTime(int userId, LocalDateTime startDT, LocalDateTime stopDT, int caloriesPerDay){
-        Collection<Meal> mealForDate = service.getFilteredByDate(userId, startDT.toLocalDate(),stopDT.toLocalDate());
-        return MealsUtil.getFilteredWithExceeded(mealForDate,startDT.toLocalTime(), stopDT.toLocalTime(),caloriesPerDay);
+    public Collection<MealWithExceed> getByDateTime(LocalDateTime startDT, LocalDateTime stopDT){
+        Collection<Meal> mealForDate = service.getFilteredByDate(AuthorizedUser.id(), startDT.toLocalDate(),stopDT.toLocalDate());
+        return MealsUtil.getFilteredWithExceeded(mealForDate,startDT.toLocalTime(), stopDT.toLocalTime(),AuthorizedUser.getCaloriesPerDay());
     }
 
 }
